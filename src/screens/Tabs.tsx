@@ -115,9 +115,9 @@ export function CustomersTab({ customers, quotes, onNav, onNewQuoteFor }: {
   );
 }
 
-export function SettingsTab({ company, quotes, onNav, onReset, onEditProfile, isPro, onUpgrade }: {
+export function SettingsTab({ company, quotes, onNav, onReset, onEditProfile, isPro, onUpgrade, onSignOut, isDemo }: {
   company: Company; quotes: Quote[]; onNav: (t: TabId) => void; onReset: () => void; onEditProfile: () => void;
-  isPro: boolean; onUpgrade: () => void;
+  isPro: boolean; onUpgrade: () => void; onSignOut?: () => void; isDemo?: boolean;
 }) {
   const won = quotes.filter((q) => q.status === 'won');
   const wonRevenue = won.reduce((s, q) => s + q.amount, 0);
@@ -189,9 +189,12 @@ export function SettingsTab({ company, quotes, onNav, onReset, onEditProfile, is
         <View style={styles.statCell}><Label>Won Revenue</Label><Money value={wonRevenue} size="lg" bold color={C.orange} /></View>
       </View>
 
-      <View style={{ paddingHorizontal: 20, paddingTop: 24 }}>
+      <View style={{ paddingHorizontal: 20, paddingTop: 24, gap: 12 }}>
         <Button variant="outline" icon="refresh" onPress={onReset}>Reset app & onboarding</Button>
-        <Label style={{ textAlign: 'center', color: C.faint2, marginTop: 16 }}>Quoted · Built for dirty hands & bright sunlight</Label>
+        {onSignOut ? (
+          <Button variant="ghost" icon="arrowR" onPress={onSignOut}>{isDemo ? 'Exit demo' : 'Sign out'}</Button>
+        ) : null}
+        <Label style={{ textAlign: 'center', color: C.faint2, marginTop: 8 }}>Quoted · Built for dirty hands & bright sunlight</Label>
       </View>
     </TabFrame>
   );

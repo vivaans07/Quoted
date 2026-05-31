@@ -248,6 +248,16 @@ export default function App() {
     persistQuotes(quotes.map((q) => (q.id === id ? { ...q, ...patch } : q)));
   };
 
+  const signOut = async () => {
+    await Billing.signOut();
+    await Cloud.signOut();
+    setIsPro(false);
+    setView('dashboard');
+    // onAuthChange ignores null sessions (to keep demo login from flashing the
+    // sign-in screen), so flip to the auth screen explicitly here.
+    setAuthState('auth');
+  };
+
   const resetApp = async () => {
     await Store.resetAll();
     const [co, cu, qu] = await Promise.all([Store.loadCompany(), Store.loadCustomers(), Store.loadQuotes()]);
@@ -303,7 +313,7 @@ export default function App() {
   } else if (view === 'customers') {
     body = <CustomersTab customers={customers} quotes={quotes} onNav={onNav} onNewQuoteFor={(c) => startNewQuote(c)} />;
   } else if (view === 'settings') {
-    body = <SettingsTab company={company} quotes={quotes} onNav={onNav} onReset={resetApp} onEditProfile={() => setView('editprofile')} isPro={isPro} onUpgrade={() => setPaywallOpen(true)} />;
+    body = <SettingsTab company={company} quotes={quotes} onNav={onNav} onReset={resetApp} onEditProfile={() => setView('editprofile')} isPro={isPro} onUpgrade={() => setPaywallOpen(true)} onSignOut={Cloud.cloudEnabled ? signOut : undefined} isDemo={Cloud.demoLoginEnabled} />;
   } else if (view === 'detail' && activeQuote) {
     body = (
       <QuoteDetail
