@@ -1,0 +1,14 @@
+# Netlify deploy config for the Quoted web app.
+# Connect this repo in Netlify and it will build + publish automatically.
+[build]
+  command = "npm run build:web"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Single-page app: serve index.html for any path so deep links don't 404.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
