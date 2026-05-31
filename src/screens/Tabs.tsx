@@ -115,8 +115,9 @@ export function CustomersTab({ customers, quotes, onNav, onNewQuoteFor }: {
   );
 }
 
-export function SettingsTab({ company, quotes, onNav, onReset, onEditProfile }: {
+export function SettingsTab({ company, quotes, onNav, onReset, onEditProfile, isPro, onUpgrade }: {
   company: Company; quotes: Quote[]; onNav: (t: TabId) => void; onReset: () => void; onEditProfile: () => void;
+  isPro: boolean; onUpgrade: () => void;
 }) {
   const won = quotes.filter((q) => q.status === 'won');
   const wonRevenue = won.reduce((s, q) => s + q.amount, 0);
@@ -158,12 +159,27 @@ export function SettingsTab({ company, quotes, onNav, onReset, onEditProfile }: 
       <SectionHeader>Subscription</SectionHeader>
       <View style={[styles.box, { padding: 16 }]}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={{ fontFamily: FONT.sansBold, fontSize: 16, color: C.ink }}>Quoted Pro</Text>
-            <Text style={{ fontFamily: FONT.sans, fontSize: 13, color: C.muted }}>$49/mo · 14-day trial</Text>
+            <Text style={{ fontFamily: FONT.sans, fontSize: 13, color: C.muted }}>
+              {isPro ? 'Active subscription' : '$49/mo · 14-day trial'}
+            </Text>
           </View>
-          <View style={styles.trialPill}><Label style={{ color: C.success }}>TRIAL</Label></View>
+          {isPro ? (
+            <View style={[styles.trialPill, { backgroundColor: '#E3F4E8' }]}><Label style={{ color: C.success }}>ACTIVE</Label></View>
+          ) : (
+            <View style={styles.trialPill}><Label style={{ color: C.success }}>TRIAL</Label></View>
+          )}
         </View>
+        {!isPro ? (
+          <View style={{ marginTop: 14 }}>
+            <Button variant="primary" icon="bolt" onPress={onUpgrade}>Upgrade to Pro</Button>
+          </View>
+        ) : (
+          <Pressable onPress={onUpgrade} style={{ marginTop: 12, alignSelf: 'flex-start' }}>
+            <Label style={{ color: C.orange }}>Manage subscription</Label>
+          </Pressable>
+        )}
       </View>
 
       <SectionHeader>Lifetime</SectionHeader>

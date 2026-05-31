@@ -12,6 +12,7 @@ import { JetBrainsMono_500Medium, JetBrainsMono_700Bold } from '@expo-google-fon
 import { C } from './src/theme';
 import { Store } from './src/storage';
 import * as Cloud from './src/cloud';
+import * as Billing from './src/purchases';
 import { generateEstimate } from './src/api';
 import type { Company, Customer, Quote, Estimate } from './src/types';
 import type { TabId } from './src/components/Chrome';
@@ -28,6 +29,7 @@ import { EditProfile } from './src/screens/EditProfile';
 import { Toast, ToastData } from './src/components/Toast';
 import { CustomerSheet, SendSheet } from './src/components/Sheets';
 import { SuccessBurst } from './src/components/SuccessBurst';
+import { Paywall } from './src/components/Paywall';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -61,6 +63,8 @@ export default function App() {
   const [toast, setToast] = useState<ToastData | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [sendOpen, setSendOpen] = useState(false);
+  const [isPro, setIsPro] = useState(false);
+  const [paywallOpen, setPaywallOpen] = useState(false);
   const [success, setSuccess] = useState<{ show: boolean; channel: string }>({ show: false, channel: '' });
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -74,6 +78,20 @@ export default function App() {
       setAuthState(session ? 'ok' : 'auth');
     });
     return unsub;
+  }, []);
+
+  // RevenueCat — configure once, tie the customer to the signed-in user, and
+  // keep `isPro` in sync with entitlement changes. No-op when billing is off.
+  useEffect(() => {
+    let unsub = () => {};
+    (async () => {
+      await Billing.init();
+      const session = await Cloud.getSession();
+      if (session?.user?.id) await Billing.identify(session.user.id);
+      setIsPro(await Billing.isPro());
+      unsub = Billing.onProChange(setIsPro);
+    })();
+    return () => unsub();
   }, []);
 
   // initial load — runs once auth is resolved so cloud pull uses the correct user
@@ -271,7 +289,7 @@ export default function App() {
   } else if (view === 'customers') {
     body = <CustomersTab customers={customers} quotes={quotes} onNav={onNav} onNewQuoteFor={(c) => startNewQuote(c)} />;
   } else if (view === 'settings') {
-    body = <SettingsTab company={company} quotes={quotes} onNav={onNav} onReset={resetApp} onEditProfile={() => setView('editprofile')} />;
+    body = <SettingsTab company={company} quotes={quotes} onNav={onNav} onReset={resetApp} onEditProfile={() => setView('editprofile')} isPro={isPro} onUpgrade={() => setPaywallOpen(true)} />;
   } else if (view === 'detail' && activeQuote) {
     body = (
       <QuoteDetail
@@ -321,6 +339,12 @@ export default function App() {
           onClose={() => setSendOpen(false)} onSent={onSent}
         />
         <SuccessBurst visible={success.show} channel={success.channel} />
+        <Paywall
+          visible={paywallOpen}
+          onClose={() => setPaywallOpen(false)}
+          onPurchased={() => setIsPro(true)}
+          onToast={(m) => showToast(m, 'success')}
+        />
       </View>
     </SafeAreaProvider>
   );

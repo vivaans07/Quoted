@@ -11,3 +11,19 @@ export const API_URL =
 export const SUPABASE_URL =
   process.env.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/$/, '') || '';
 export const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
+
+// ── RevenueCat in-app subscriptions ────────────────────────────────────
+// Public SDK keys come from mobile/.env. There is one key per store — the
+// iOS (Apple) key and the Android (Google) key are different. When the key
+// for the running platform is empty, billing stays OFF and the app shows the
+// static trial card (no crash, useful in Expo Go where IAP can't run anyway).
+//
+// RevenueCat Dashboard → Project Settings → API keys → "Public app-specific
+// API keys". Use the Apple key for iOS, the Google key for Android.
+export const REVENUECAT_IOS_KEY = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY || '';
+export const REVENUECAT_ANDROID_KEY = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY || '';
+
+// The entitlement identifier you create in RevenueCat (Dashboard → Entitlements).
+// A customer who owns this entitlement is "Quoted Pro".
+export const REVENUECAT_ENTITLEMENT =
+  process.env.EXPO_PUBLIC_REVENUECAT_ENTITLEMENT || 'pro';
