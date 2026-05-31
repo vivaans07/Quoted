@@ -11,9 +11,12 @@
 import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient, SupabaseClient, Session } from '@supabase/supabase-js';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config';
+import { SUPABASE_URL, SUPABASE_ANON_KEY, DEMO_EMAIL, DEMO_PASSWORD } from './config';
 
 export const cloudEnabled = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+
+// Demo auto-login is available only when cloud is on AND demo creds are set.
+export const demoLoginEnabled = Boolean(cloudEnabled && DEMO_EMAIL && DEMO_PASSWORD);
 
 const APP_STATE_TABLE = 'app_state';
 const SHARES_TABLE = 'shared_estimates';
@@ -83,6 +86,23 @@ export async function signUp(email: string, password: string): Promise<Session |
 export async function signOut(): Promise<void> {
   if (!supabase) return;
   await supabase.auth.signOut();
+}
+
+/**
+ * Silently sign into the demo account so a public demo skips the login screen.
+ * Returns true on success. Never throws — falls back to the normal login flow.
+ */
+export async function tryDemoLogin(): Promise<boolean> {
+  if (!supabase || !demoLoginEnabled) return false;
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: DEMO_EMAIL,
+      password: DEMO_PASSWORD,
+    });
+    return !error && Boolean(data.session);
+  } catch {
+    return false;
+  }
 }
 
 // ── App-state sync ────────────────────────────────────────────────────────────

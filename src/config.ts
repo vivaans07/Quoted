@@ -12,6 +12,15 @@ export const SUPABASE_URL =
   process.env.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/$/, '') || '';
 export const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
 
+// ── Demo auto-login ────────────────────────────────────────────────────
+// When both are set, the app silently signs into this account on launch and
+// skips the sign-in screen — handy for a public web demo. Leave blank for the
+// normal login flow.
+// SECURITY: these get embedded in the client bundle, so use a dedicated demo
+// account with throwaway data only. Never put a real user's password here.
+export const DEMO_EMAIL = process.env.EXPO_PUBLIC_DEMO_EMAIL || '';
+export const DEMO_PASSWORD = process.env.EXPO_PUBLIC_DEMO_PASSWORD || '';
+
 // ── RevenueCat in-app subscriptions ────────────────────────────────────
 // Public SDK keys come from mobile/.env. There is one key per store — the
 // iOS (Apple) key and the Android (Google) key are different. When the key

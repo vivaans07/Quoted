@@ -68,16 +68,30 @@ export default function App() {
   const [success, setSuccess] = useState<{ show: boolean; channel: string }>({ show: false, channel: '' });
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Auth gate — subscribe to session changes; resolve initial state immediately.
+  // Auth gate — subscribe to session changes, then resolve the initial state.
+  // If there's no session but a demo account is configured, auto-sign-in so the
+  // login screen is skipped. Falls back to the normal sign-in screen otherwise.
   useEffect(() => {
     if (!Cloud.cloudEnabled) return; // local-only mode, already set to 'ok'
+    let active = true;
+    // A live session (sign-in / demo login / token refresh) always means 'ok'.
+    // Initial null is resolved by the bootstrap below so the demo login doesn't
+    // flash the sign-in screen first.
     const unsub = Cloud.onAuthChange((session) => {
-      setAuthState(session ? 'ok' : 'auth');
+      if (session && active) setAuthState('ok');
     });
-    Cloud.getSession().then((session) => {
-      setAuthState(session ? 'ok' : 'auth');
-    });
-    return unsub;
+    (async () => {
+      const session = await Cloud.getSession();
+      if (!active) return;
+      if (session) { setAuthState('ok'); return; }
+      if (Cloud.demoLoginEnabled) {
+        const ok = await Cloud.tryDemoLogin();
+        if (active) setAuthState(ok ? 'ok' : 'auth');
+      } else {
+        setAuthState('auth');
+      }
+    })();
+    return () => { active = false; unsub(); };
   }, []);
 
   // RevenueCat — configure once, tie the customer to the signed-in user, and
