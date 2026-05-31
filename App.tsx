@@ -5,9 +5,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 import {
   useFonts,
-  DMSans_400Regular, DMSans_500Medium, DMSans_700Bold, DMSans_800ExtraBold,
+  DMSans_400Regular, DMSans_500Medium, DMSans_600SemiBold, DMSans_700Bold, DMSans_800ExtraBold,
 } from '@expo-google-fonts/dm-sans';
-import { JetBrainsMono_500Medium, JetBrainsMono_700Bold } from '@expo-google-fonts/jetbrains-mono';
+import {
+  JetBrainsMono_500Medium, JetBrainsMono_600SemiBold, JetBrainsMono_700Bold, JetBrainsMono_800ExtraBold,
+} from '@expo-google-fonts/jetbrains-mono';
+import {
+  SpaceGrotesk_500Medium, SpaceGrotesk_600SemiBold, SpaceGrotesk_700Bold,
+} from '@expo-google-fonts/space-grotesk';
 
 import { C } from './src/theme';
 import { Store } from './src/storage';
@@ -18,6 +23,7 @@ import type { Company, Customer, Quote, Estimate } from './src/types';
 import type { TabId } from './src/components/Chrome';
 
 import { Auth } from './src/screens/Auth';
+import { BootSplash } from './src/screens/BootSplash';
 import { Onboarding } from './src/screens/onboarding/Onboarding';
 import { Dashboard } from './src/screens/Dashboard';
 import { NewQuote } from './src/screens/NewQuote';
@@ -37,8 +43,9 @@ type AppView = TabId | 'newquote' | 'loading' | 'review' | 'detail' | 'editprofi
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    DMSans_400Regular, DMSans_500Medium, DMSans_700Bold, DMSans_800ExtraBold,
-    JetBrainsMono_500Medium, JetBrainsMono_700Bold,
+    DMSans_400Regular, DMSans_500Medium, DMSans_600SemiBold, DMSans_700Bold, DMSans_800ExtraBold,
+    JetBrainsMono_500Medium, JetBrainsMono_600SemiBold, JetBrainsMono_700Bold, JetBrainsMono_800ExtraBold,
+    SpaceGrotesk_500Medium, SpaceGrotesk_600SemiBold, SpaceGrotesk_700Bold,
   });
 
   // 'loading' while checking Supabase session; 'auth' = no session; 'ok' = authenticated (or local-only)
@@ -271,7 +278,12 @@ export default function App() {
   };
 
   if (!fontsLoaded || authState === 'loading') {
-    return <View style={{ flex: 1, backgroundColor: C.bg }} />;
+    return (
+      <SafeAreaProvider>
+        <StatusBar style="dark" />
+        <BootSplash />
+      </SafeAreaProvider>
+    );
   }
 
   if (authState === 'auth') {
@@ -284,7 +296,12 @@ export default function App() {
   }
 
   if (!ready || !company) {
-    return <View style={{ flex: 1, backgroundColor: C.bg }} />;
+    return (
+      <SafeAreaProvider>
+        <StatusBar style="dark" />
+        <BootSplash />
+      </SafeAreaProvider>
+    );
   }
 
   if (!company.onboarded) {

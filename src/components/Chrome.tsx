@@ -13,8 +13,8 @@ export function AppHeader({ onBell, notif = true }: { onBell?: () => void; notif
     <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
       <View style={styles.headerRow}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <View style={styles.logoMark}><Icon name="bolt" size={14} stroke="#fff" sw={2.4} /></View>
-          <Text style={styles.wordmark}>Quoted</Text>
+          <View style={styles.logoMark}><Icon name="bolt" size={15} stroke={C.orange} sw={2.4} /></View>
+          <Text style={styles.wordmark}>Quoted<Text style={{ color: C.orange }}>.</Text></Text>
         </View>
         <Pressable onPress={onBell} hitSlop={10} style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}>
           <Icon name="bell" size={22} stroke={C.navy} sw={1.9} />
@@ -90,8 +90,8 @@ const styles = StyleSheet.create({
   headerRow: {
     height: 52, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
   },
-  logoMark: { width: 22, height: 22, borderRadius: 5, backgroundColor: C.orange, alignItems: 'center', justifyContent: 'center' },
-  wordmark: { fontFamily: FONT.sansHeavy, fontSize: 20, letterSpacing: -0.4, color: C.navy },
+  logoMark: { width: 26, height: 26, borderRadius: 6, backgroundColor: C.navy, alignItems: 'center', justifyContent: 'center' },
+  wordmark: { fontFamily: FONT.display, fontSize: 19, letterSpacing: 0.4, color: C.navy, textTransform: 'uppercase' },
   notifDot: { position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: 4, backgroundColor: C.orange, borderWidth: 2, borderColor: C.bg },
   backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', transform: [{ rotate: '180deg' }] },
   title: { fontFamily: FONT.sansBold, fontSize: 17, color: C.ink },
@@ -101,9 +101,10 @@ const styles = StyleSheet.create({
   navIndicator: { position: 'absolute', top: 0, width: 36, height: 3, borderRadius: 2, backgroundColor: C.orange },
   navLabel: { fontFamily: FONT.sansMed, fontSize: 10, letterSpacing: 0.3 },
   fab: {
-    position: 'absolute', right: 18, width: 56, height: 56, borderRadius: 28,
+    position: 'absolute', right: 18, width: 54, height: 54, borderRadius: 15,
     backgroundColor: C.orange, alignItems: 'center', justifyContent: 'center',
-    shadowColor: C.orange, shadowOpacity: 0.4, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 8,
+    borderWidth: 1, borderColor: C.orangePress,
+    shadowColor: C.orange, shadowOpacity: 0.35, shadowRadius: 14, shadowOffset: { width: 0, height: 5 }, elevation: 8,
     zIndex: 30,
   },
 });

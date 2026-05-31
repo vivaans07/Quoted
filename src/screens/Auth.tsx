@@ -17,13 +17,24 @@ export function Auth({ onDone }: Props) {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const canSubmit = email.trim().includes('@') && password.length >= 6;
+  const isSignup = mode === 'signup';
+  const passwordsMatch = !isSignup || confirm === password;
+  const canSubmit =
+    email.trim().includes('@') &&
+    password.length >= 6 &&
+    (!isSignup || (confirm.length >= 6 && passwordsMatch));
 
   const submit = async () => {
-    if (!canSubmit || loading) return;
+    if (loading) return;
+    if (isSignup && password !== confirm) {
+      setError('Passwords do not match.');
+      return;
+    }
+    if (!canSubmit) return;
     setLoading(true);
     setError('');
     try {
@@ -52,9 +63,9 @@ export function Auth({ onDone }: Props) {
         {/* Logo */}
         <View style={styles.logoRow}>
           <View style={styles.logoIcon}>
-            <Icon name="bolt" size={28} stroke="#fff" sw={2.5} />
+            <Icon name="bolt" size={26} stroke={C.orange} sw={2.5} />
           </View>
-          <Text style={styles.logoText}>Quoted</Text>
+          <Text style={styles.logoText}>Quoted<Text style={{ color: C.orange }}>.</Text></Text>
         </View>
 
         <Text style={styles.headline}>
@@ -88,11 +99,30 @@ export function Auth({ onDone }: Props) {
               style={styles.input}
               value={password}
               onChangeText={setPassword}
-              placeholder={mode === 'signup' ? 'At least 6 characters' : '••••••••'}
+              placeholder={isSignup ? 'At least 6 characters' : '••••••••'}
               placeholderTextColor={C.muted}
               secureTextEntry
+              textContentType={isSignup ? 'newPassword' : 'password'}
             />
           </View>
+
+          {isSignup ? (
+            <View style={styles.field}>
+              <Text style={styles.label}>Confirm password</Text>
+              <TextInput
+                style={[styles.input, confirm.length > 0 && !passwordsMatch && styles.inputError]}
+                value={confirm}
+                onChangeText={setConfirm}
+                placeholder="Re-enter your password"
+                placeholderTextColor={C.muted}
+                secureTextEntry
+                textContentType="newPassword"
+              />
+              {confirm.length > 0 && !passwordsMatch ? (
+                <Text style={styles.hintError}>Passwords don't match</Text>
+              ) : null}
+            </View>
+          ) : null}
 
           {error ? (
             <View style={styles.errorBox}>
@@ -114,7 +144,7 @@ export function Auth({ onDone }: Props) {
         </View>
 
         {/* Toggle */}
-        <Pressable onPress={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(''); }}>
+        <Pressable onPress={() => { setMode(isSignup ? 'signin' : 'signup'); setError(''); setConfirm(''); }}>
           <Text style={styles.toggle}>
             {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
             <Text style={styles.toggleLink}>
@@ -131,10 +161,10 @@ const styles = StyleSheet.create({
   scroll: { flexGrow: 1, paddingHorizontal: 24 },
   logoRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 36 },
   logoIcon: {
-    width: 44, height: 44, borderRadius: 12, backgroundColor: C.orange,
+    width: 44, height: 44, borderRadius: 12, backgroundColor: C.navy,
     alignItems: 'center', justifyContent: 'center',
   },
-  logoText: { fontFamily: FONT.sansBold, fontSize: 22, color: C.navy },
+  logoText: { fontFamily: FONT.display, fontSize: 22, color: C.navy, textTransform: 'uppercase', letterSpacing: 0.4 },
   headline: { fontFamily: FONT.sansBold, fontSize: 28, color: C.navy, marginBottom: 8 },
   sub: { fontFamily: FONT.sans, fontSize: 15, color: C.muted, marginBottom: 32, lineHeight: 22 },
   form: { gap: 16, marginBottom: 24 },
@@ -145,6 +175,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14, paddingVertical: 13,
     fontFamily: FONT.sans, fontSize: 15, color: C.ink, backgroundColor: '#fff',
   },
+  inputError: { borderColor: C.danger },
+  hintError: { fontFamily: FONT.sansMed, fontSize: 12, color: C.danger, marginTop: 2 },
   errorBox: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
     backgroundColor: '#FFF4EC', borderRadius: 10, padding: 12,
